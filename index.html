@@ -1,0 +1,1213 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FairRent" />
+  <meta name="description" content="Snap your lease. Know your rights instantly." />
+  <title>FairRent – The Renter's Shield</title>
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --surface: #1a1a2e;
+      --surface2: #16213e;
+      --card: #1e1e35;
+      --accent: #6c63ff;
+      --accent2: #ff6584;
+      --accent3: #43e97b;
+      --text: #f0f0ff;
+      --text2: #a0a0c0;
+      --border: rgba(108,99,255,0.2);
+      --red: #ff4757;
+      --yellow: #ffa502;
+      --green: #2ed573;
+      --radius: 20px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── SPLASH / ONBOARDING ── */
+    #splash {
+      position: fixed; inset: 0; z-index: 100;
+      background: linear-gradient(160deg, #0f0f1a 0%, #1a1a2e 50%, #0d0d20 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px 30px;
+      text-align: center;
+    }
+    .splash-orb {
+      width: 120px; height: 120px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 36px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 52px;
+      box-shadow: 0 20px 60px rgba(108,99,255,0.4);
+      margin-bottom: 28px;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .splash h1 { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; }
+    .splash h1 span { background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .splash p { color: var(--text2); font-size: 16px; margin: 12px 0 40px; line-height: 1.5; }
+    .feature-pills { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 320px; margin-bottom: 40px; }
+    .pill {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex; align-items: center; gap: 14px;
+      text-align: left;
+    }
+    .pill-icon { font-size: 24px; flex-shrink: 0; }
+    .pill-text strong { font-size: 14px; display: block; }
+    .pill-text span { font-size: 12px; color: var(--text2); }
+    .btn-cta {
+      width: 100%; max-width: 320px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      color: white; font-size: 17px; font-weight: 700;
+      border: none; border-radius: 16px; padding: 18px;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(108,99,255,0.4);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .btn-cta:active { transform: scale(0.97); box-shadow: 0 4px 15px rgba(108,99,255,0.3); }
+
+    /* ── APP SHELL ── */
+    #app { display: none; flex-direction: column; min-height: 100vh; }
+    #app.visible { display: flex; }
+
+    /* ── STATUS BAR SPACER ── */
+    .status-bar { height: calc(var(--safe-top) + 12px); background: var(--surface); }
+
+    /* ── TOP NAV ── */
+    .top-nav {
+      background: var(--surface);
+      padding: 16px 20px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .nav-logo .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .nav-logo span { font-size: 18px; font-weight: 800; }
+    .nav-badge {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      font-size: 10px; font-weight: 700;
+      padding: 4px 10px; border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── SCROLL CONTENT ── */
+    .scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 16px calc(90px + var(--safe-bottom));
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* ── PAGES ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+      color: var(--accent); text-transform: uppercase;
+      margin-bottom: 12px; margin-top: 24px;
+    }
+    .section-label:first-child { margin-top: 0; }
+
+    /* ── UPLOAD ZONE ── */
+    .upload-zone {
+      border: 2px dashed var(--accent);
+      border-radius: var(--radius);
+      background: rgba(108,99,255,0.06);
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .upload-zone.has-file {
+      border-color: var(--green);
+      background: rgba(46,213,115,0.06);
+    }
+    .upload-zone:active { transform: scale(0.98); }
+    .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .upload-icon { font-size: 40px; margin-bottom: 12px; }
+    .upload-zone h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .upload-zone p { font-size: 13px; color: var(--text2); }
+    .upload-options { display: flex; gap: 10px; margin-top: 16px; justify-content: center; }
+    .upload-btn {
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); font-size: 13px; font-weight: 600;
+      padding: 10px 18px; border-radius: 12px; cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .preview-img {
+      width: 100%; max-height: 200px; object-fit: cover;
+      border-radius: 14px; margin-top: 12px;
+      display: none;
+    }
+    .preview-img.visible { display: block; }
+
+    /* ── FORM FIELDS ── */
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 12px;
+    }
+    .form-card label {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+      color: var(--text2); display: block; margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .form-card input, .form-card select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 16px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .form-card input::placeholder { color: var(--text2); }
+    .form-card input:focus, .form-card select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
+    }
+    .select-wrapper { position: relative; }
+    .select-wrapper::after {
+      content: '▾';
+      position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+      color: var(--text2); pointer-events: none; font-size: 14px;
+    }
+    .form-card select option { background: var(--surface); }
+
+    /* ── TYPE PILLS ── */
+    .type-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .type-pill {
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: var(--surface2);
+      font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+      color: var(--text2);
+    }
+    .type-pill.selected {
+      border-color: var(--accent);
+      background: rgba(108,99,255,0.15);
+      color: var(--text);
+    }
+
+    /* ── ANALYZE BUTTON ── */
+    .analyze-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      color: white; font-size: 17px; font-weight: 700;
+      border: none; border-radius: 16px; padding: 18px;
+      cursor: pointer; margin-top: 20px;
+      box-shadow: 0 8px 30px rgba(108,99,255,0.35);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: transform 0.1s;
+    }
+    .analyze-btn:active { transform: scale(0.98); }
+    .analyze-btn:disabled {
+      opacity: 0.5; cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* ── LOADING ── */
+    #loading-page {
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 70vh; text-align: center; padding: 30px;
+    }
+    #loading-page.active { display: flex; }
+    .loader-ring {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      border: 4px solid var(--border);
+      border-top-color: var(--accent);
+      border-right-color: var(--accent2);
+      animation: spin 1s linear infinite;
+      margin-bottom: 28px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-step {
+      font-size: 15px; color: var(--text2);
+      margin-top: 8px; min-height: 22px;
+      transition: opacity 0.3s;
+    }
+    .loading-step strong { color: var(--accent); }
+
+    /* ── RESULTS ── */
+    .risk-hero {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 16px;
+      position: relative; overflow: hidden;
+    }
+    .risk-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(108,99,255,0.1), transparent 70%);
+    }
+    .risk-score-ring {
+      width: 110px; height: 110px;
+      margin: 0 auto 16px;
+      position: relative;
+    }
+    .risk-score-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .risk-score-ring .ring-bg { fill: none; stroke: var(--surface2); stroke-width: 8; }
+    .risk-score-ring .ring-fill { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1.2s ease; }
+    .risk-score-center {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .risk-num { font-size: 28px; font-weight: 900; }
+    .risk-label { font-size: 10px; color: var(--text2); letter-spacing: 1px; font-weight: 700; }
+    .risk-tier-badge {
+      display: inline-block;
+      padding: 6px 18px; border-radius: 20px;
+      font-size: 13px; font-weight: 800; letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .tier-LOW { background: rgba(46,213,115,0.15); color: #2ed573; border: 1px solid rgba(46,213,115,0.3); }
+    .tier-MEDIUM { background: rgba(255,165,2,0.15); color: #ffa502; border: 1px solid rgba(255,165,2,0.3); }
+    .tier-HIGH { background: rgba(255,71,87,0.15); color: #ff4757; border: 1px solid rgba(255,71,87,0.3); }
+    .tier-CRITICAL { background: rgba(255,71,87,0.25); color: #ff4757; border: 1px solid #ff4757; animation: pulse-border 1.5s infinite; }
+    @keyframes pulse-border { 0%,100% { box-shadow: 0 0 0 0 rgba(255,71,87,0.3); } 50% { box-shadow: 0 0 0 6px rgba(255,71,87,0); } }
+    .risk-meta { display: flex; gap: 20px; justify-content: center; margin-top: 4px; }
+    .risk-meta-item { text-align: center; }
+    .risk-meta-item .val { font-size: 22px; font-weight: 800; }
+    .risk-meta-item .lbl { font-size: 11px; color: var(--text2); }
+
+    /* ── RESULT SECTIONS ── */
+    .result-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .result-section-header {
+      padding: 16px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer;
+    }
+    .result-section-header .title {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 15px; font-weight: 700;
+    }
+    .result-section-header .count-badge {
+      padding: 3px 10px; border-radius: 10px;
+      font-size: 12px; font-weight: 700;
+    }
+    .badge-red { background: rgba(255,71,87,0.15); color: var(--red); }
+    .badge-yellow { background: rgba(255,165,2,0.15); color: var(--yellow); }
+    .badge-green { background: rgba(46,213,115,0.15); color: var(--green); }
+    .badge-purple { background: rgba(108,99,255,0.15); color: var(--accent); }
+    .chevron { color: var(--text2); font-size: 12px; transition: transform 0.3s; }
+    .result-section.open .chevron { transform: rotate(180deg); }
+    .result-section-body { display: none; padding: 0 18px 18px; border-top: 1px solid var(--border); }
+    .result-section.open .result-section-body { display: block; }
+
+    /* ── FLAG ITEMS ── */
+    .flag-item {
+      background: var(--surface2);
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 10px;
+      border-left: 3px solid var(--red);
+    }
+    .flag-item.medium { border-left-color: var(--yellow); }
+    .flag-item.low { border-left-color: var(--accent); }
+    .flag-severity {
+      font-size: 10px; font-weight: 800; letter-spacing: 1px;
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+    .sev-high { color: var(--red); }
+    .sev-medium { color: var(--yellow); }
+    .sev-low { color: var(--accent); }
+    .flag-issue { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .flag-clause {
+      font-size: 12px; color: var(--text2);
+      background: var(--bg); border-radius: 8px;
+      padding: 8px 10px; margin: 8px 0;
+      font-style: italic;
+      border-left: 2px solid var(--border);
+    }
+    .flag-law { font-size: 12px; color: var(--accent2); }
+
+    /* ── RIGHTS ITEMS ── */
+    .right-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .right-item:last-child { border-bottom: none; }
+    .right-check {
+      width: 22px; height: 22px; border-radius: 6px;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; margin-top: 2px;
+    }
+    .right-check.missing { background: rgba(255,71,87,0.15); color: var(--red); border: 1px solid rgba(255,71,87,0.3); }
+    .right-check.present { background: rgba(46,213,115,0.15); color: var(--green); border: 1px solid rgba(46,213,115,0.3); }
+    .right-text strong { font-size: 14px; display: block; margin-bottom: 2px; }
+    .right-text span { font-size: 12px; color: var(--text2); }
+
+    /* ── ACTION ITEMS ── */
+    .action-item {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .action-item:last-child { border-bottom: none; }
+    .action-num {
+      width: 26px; height: 26px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; flex-shrink: 0;
+    }
+    .action-text strong { font-size: 14px; display: block; margin-bottom: 2px; }
+    .action-text span { font-size: 12px; color: var(--text2); }
+
+    /* ── LAW ALERT ── */
+    .law-alert {
+      background: linear-gradient(135deg, rgba(255,101,132,0.1), rgba(108,99,255,0.1));
+      border: 1px solid rgba(255,101,132,0.3);
+      border-radius: 14px; padding: 14px;
+      margin-top: 10px;
+    }
+    .law-alert .law-name { font-size: 13px; font-weight: 700; color: var(--accent2); margin-bottom: 4px; }
+    .law-alert .law-desc { font-size: 12px; color: var(--text2); }
+
+    /* ── CITY INFO BANNER ── */
+    .city-banner {
+      background: linear-gradient(135deg, rgba(108,99,255,0.15), rgba(139,92,246,0.1));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 18px;
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 16px;
+    }
+    .city-banner .city-icon { font-size: 28px; }
+    .city-banner strong { font-size: 15px; display: block; }
+    .city-banner span { font-size: 12px; color: var(--text2); }
+
+    /* ── SHARE / EXPORT BUTTONS ── */
+    .action-row { display: flex; gap: 10px; margin-top: 16px; }
+    .action-row-btn {
+      flex: 1; padding: 14px;
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); font-size: 13px; font-weight: 600;
+      border-radius: 14px; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      transition: all 0.15s;
+    }
+    .action-row-btn:active { transform: scale(0.96); }
+    .action-row-btn .btn-icon { font-size: 22px; }
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      padding: 10px 0 calc(10px + var(--safe-bottom));
+      z-index: 50;
+    }
+    .nav-item {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; gap: 4px;
+      cursor: pointer; padding: 6px 0;
+      transition: all 0.15s;
+    }
+    .nav-item .nav-icon { font-size: 22px; filter: grayscale(1) opacity(0.5); transition: all 0.2s; }
+    .nav-item .nav-label { font-size: 10px; color: var(--text2); font-weight: 600; }
+    .nav-item.active .nav-icon { filter: none; transform: scale(1.1); }
+    .nav-item.active .nav-label { color: var(--accent); }
+
+    /* ── HISTORY PAGE ── */
+    .history-empty {
+      text-align: center; padding: 60px 30px;
+    }
+    .history-empty .empty-icon { font-size: 48px; margin-bottom: 16px; }
+    .history-empty p { color: var(--text2); font-size: 15px; line-height: 1.6; }
+    .history-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      margin-bottom: 12px; cursor: pointer;
+      display: flex; align-items: center; gap: 16px;
+      transition: all 0.15s;
+    }
+    .history-card:active { transform: scale(0.98); }
+    .history-card-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .history-card-info { flex: 1; }
+    .history-card-info strong { font-size: 14px; display: block; margin-bottom: 2px; }
+    .history-card-info span { font-size: 12px; color: var(--text2); }
+    .history-score { font-size: 20px; font-weight: 900; }
+
+    /* ── INFO PAGE ── */
+    .info-header {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: var(--radius); padding: 24px;
+      text-align: center; margin-bottom: 16px;
+    }
+    .info-header h2 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+    .info-header p { font-size: 13px; opacity: 0.85; }
+    .info-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px;
+      margin-bottom: 12px;
+    }
+    .info-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .info-card p, .info-card li { font-size: 13px; color: var(--text2); line-height: 1.6; }
+    .info-card ul { padding-left: 18px; }
+    .info-card li { margin-bottom: 6px; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; top: calc(var(--safe-top) + 70px);
+      left: 50%; transform: translateX(-50%) translateY(-20px);
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px 20px;
+      font-size: 13px; font-weight: 600;
+      z-index: 200; opacity: 0;
+      transition: all 0.3s; white-space: nowrap;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .slide-up { animation: slideUp 0.4s ease both; }
+    .slide-up-2 { animation: slideUp 0.4s 0.1s ease both; }
+    .slide-up-3 { animation: slideUp 0.4s 0.2s ease both; }
+  </style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-orb">🛡️</div>
+  <h1>Fair<span>Rent</span></h1>
+  <p>Snap your lease. Know your rights.<br/>Powered by real-time city laws.</p>
+  <div class="feature-pills">
+    <div class="pill">
+      <div class="pill-icon">🚩</div>
+      <div class="pill-text">
+        <strong>Red Flag Detection</strong>
+        <span>Illegal fees, bad clauses, traps</span>
+      </div>
+    </div>
+    <div class="pill">
+      <div class="pill-icon">📋</div>
+      <div class="pill-text">
+        <strong>Missing Rights Check</strong>
+        <span>Rights your lease should include</span>
+      </div>
+    </div>
+    <div class="pill">
+      <div class="pill-icon">⚡</div>
+      <div class="pill-text">
+        <strong>2026 City Law Sync</strong>
+        <span>Updated to the latest local laws</span>
+      </div>
+    </div>
+  </div>
+  <button class="btn-cta" onclick="startApp()">Get Started — It's Free</button>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="status-bar"></div>
+  <div class="top-nav">
+    <div class="nav-logo">
+      <div class="logo-icon">🛡️</div>
+      <span>FairRent</span>
+    </div>
+    <div class="nav-badge">LIVE LAWS</div>
+  </div>
+
+  <div class="scroll-content">
+
+    <!-- ── PAGE: SCAN ── -->
+    <div id="page-scan" class="page active">
+      <div class="section-label">Upload Your Lease</div>
+      <div class="upload-zone" id="uploadZone" onclick="triggerUpload()">
+        <input type="file" id="fileInput" accept="image/*,application/pdf" capture="environment" onchange="handleFile(event)" />
+        <div class="upload-icon" id="uploadIcon">📄</div>
+        <h3 id="uploadTitle">Snap or Upload Lease</h3>
+        <p id="uploadDesc">Take a photo with your camera or upload a PDF/image of your lease</p>
+        <div class="upload-options">
+          <div class="upload-btn" onclick="openCamera(event)">📷 Camera</div>
+          <div class="upload-btn" onclick="openFiles(event)">📁 Files</div>
+        </div>
+        <img id="previewImg" class="preview-img" alt="Lease preview" />
+      </div>
+
+      <div class="section-label">Rental Details</div>
+
+      <div class="form-card">
+        <label>📍 City &amp; State</label>
+        <input type="text" id="cityInput" placeholder="e.g. Los Angeles, CA" inputmode="text" autocomplete="off" />
+      </div>
+
+      <div class="form-card">
+        <label>🏠 Rental Type</label>
+        <div class="type-pills">
+          <div class="type-pill selected" onclick="selectType(this, 'apartment')">🏢 Apartment</div>
+          <div class="type-pill" onclick="selectType(this, 'house')">🏡 House</div>
+          <div class="type-pill" onclick="selectType(this, 'condo')">🏙️ Condo</div>
+          <div class="type-pill" onclick="selectType(this, 'room')">🛏️ Room</div>
+          <div class="type-pill" onclick="selectType(this, 'commercial')">🏪 Commercial</div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <label>💵 Monthly Rent (optional)</label>
+        <input type="number" id="rentInput" placeholder="e.g. 2500" inputmode="numeric" />
+      </div>
+
+      <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">
+        <span>🔍</span> Analyze My Lease
+      </button>
+    </div>
+
+    <!-- ── PAGE: LOADING ── -->
+    <div id="loading-page">
+      <div class="loader-ring"></div>
+      <h2 style="font-size:22px; margin-bottom:8px;">Analyzing Lease</h2>
+      <p style="color:var(--text2); font-size:14px; margin-bottom:24px;">This takes about 15–30 seconds</p>
+      <div class="loading-step" id="loadingStep">Extracting lease text...</div>
+    </div>
+
+    <!-- ── PAGE: RESULTS ── -->
+    <div id="page-results" class="page">
+      <div id="results-content"></div>
+    </div>
+
+    <!-- ── PAGE: HISTORY ── -->
+    <div id="page-history" class="page">
+      <div class="section-label">Past Analyses</div>
+      <div id="history-list"></div>
+    </div>
+
+    <!-- ── PAGE: INFO ── -->
+    <div id="page-info" class="page">
+      <div class="info-header">
+        <div style="font-size:36px; margin-bottom:12px;">🛡️</div>
+        <h2>About FairRent</h2>
+        <p>Your AI-powered tenant protection shield</p>
+      </div>
+
+      <div class="info-card">
+        <h3>🔍 How It Works</h3>
+        <ul>
+          <li>Upload a photo or PDF of your lease</li>
+          <li>Our AI reads every clause in detail</li>
+          <li>We cross-check against your city's current laws</li>
+          <li>Get a risk score + actionable steps</li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <h3>⚡ 2026 City Law Sync</h3>
+        <p>FairRent queries real-time legal databases to ensure your analysis reflects the latest local tenant protection laws, rent control caps, and just-cause eviction rules — even if they were passed last month.</p>
+      </div>
+
+      <div class="info-card">
+        <h3>🚩 What We Check</h3>
+        <ul>
+          <li>Illegal late fee amounts</li>
+          <li>Security deposit over legal cap</li>
+          <li>Missing landlord entry notice</li>
+          <li>Illegal lease waivers</li>
+          <li>Rent increase violations</li>
+          <li>Retaliation clauses</li>
+          <li>Hidden or unlabeled fees</li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <h3>⚠️ Disclaimer</h3>
+        <p>FairRent provides informational analysis only and is not legal advice. For serious lease issues, consult a licensed tenant attorney or your local tenant rights organization.</p>
+      </div>
+
+      <div class="info-card">
+        <h3>📞 Get Real Help</h3>
+        <ul>
+          <li>National Housing Law Project</li>
+          <li>Local Legal Aid offices (search "[your city] legal aid")</li>
+          <li>Tenant Union organizations</li>
+          <li>HUD Housing Counselors: 1-800-569-4287</li>
+        </ul>
+      </div>
+    </div>
+
+  </div><!-- end scroll-content -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <div class="nav-item active" id="nav-scan" onclick="navigate('scan')">
+      <div class="nav-icon">🔍</div>
+      <div class="nav-label">Scan</div>
+    </div>
+    <div class="nav-item" id="nav-history" onclick="navigate('history')">
+      <div class="nav-icon">🕐</div>
+      <div class="nav-label">History</div>
+    </div>
+    <div class="nav-item" id="nav-info" onclick="navigate('info')">
+      <div class="nav-icon">ℹ️</div>
+      <div class="nav-label">About</div>
+    </div>
+  </nav>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── STATE ──
+  let selectedType = 'apartment';
+  let uploadedFile = null;
+  let history = JSON.parse(localStorage.getItem('fairrent_history') || '[]');
+  let currentResult = null;
+
+  // ── SPLASH ──
+  function startApp() {
+    document.getElementById('splash').style.opacity = '0';
+    document.getElementById('splash').style.transition = 'opacity 0.4s';
+    setTimeout(() => {
+      document.getElementById('splash').style.display = 'none';
+      document.getElementById('app').classList.add('visible');
+    }, 400);
+  }
+
+  // ── NAVIGATION ──
+  function navigate(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('loading-page').style.display = 'none';
+
+    if (page === 'results') {
+      document.getElementById('page-results').classList.add('active');
+    } else {
+      const el = document.getElementById('page-' + page);
+      if (el) el.classList.add('active');
+    }
+    const navEl = document.getElementById('nav-' + page);
+    if (navEl) navEl.classList.add('active');
+
+    if (page === 'history') renderHistory();
+  }
+
+  // ── FILE UPLOAD ──
+  function triggerUpload() {}
+  function openCamera(e) {
+    e.stopPropagation();
+    const input = document.getElementById('fileInput');
+    input.setAttribute('capture', 'environment');
+    input.click();
+  }
+  function openFiles(e) {
+    e.stopPropagation();
+    const input = document.getElementById('fileInput');
+    input.removeAttribute('capture');
+    input.click();
+  }
+  function handleFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    uploadedFile = file;
+    const zone = document.getElementById('uploadZone');
+    zone.classList.add('has-file');
+    document.getElementById('uploadIcon').textContent = '✅';
+    document.getElementById('uploadTitle').textContent = file.name.length > 24 ? file.name.substring(0,24)+'…' : file.name;
+    document.getElementById('uploadDesc').textContent = `${(file.size/1024).toFixed(0)} KB · Ready to analyze`;
+
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = document.getElementById('previewImg');
+        img.src = ev.target.result;
+        img.classList.add('visible');
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // ── TYPE SELECTION ──
+  function selectType(el, type) {
+    document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedType = type;
+  }
+
+  // ── LOADING STEPS ──
+  const loadingSteps = [
+    'Extracting lease text with AI vision...',
+    'Querying <strong>' + 'city' + '</strong> tenant law database...',
+    'Scanning for illegal clauses...',
+    'Checking for missing renter rights...',
+    'Syncing with 2026 city law updates...',
+    'Calculating your Risk Score...',
+    'Generating your FairRent Report...',
+  ];
+  let stepInterval;
+
+  function startLoadingSteps(city) {
+    let i = 0;
+    const steps = [
+      'Extracting lease text with AI vision...',
+      `Querying <strong>${city}</strong> tenant law database...`,
+      'Scanning for illegal clauses 🚩',
+      'Checking for missing renter rights 📋',
+      'Syncing with 2026 city law updates ⚡',
+      'Calculating your Risk Score...',
+      'Generating your FairRent Report...',
+    ];
+    document.getElementById('loadingStep').innerHTML = steps[0];
+    stepInterval = setInterval(() => {
+      i = Math.min(i + 1, steps.length - 1);
+      document.getElementById('loadingStep').innerHTML = steps[i];
+    }, 3500);
+  }
+
+  // ── DEMO DATA GENERATOR ──
+  function generateDemoResult(city, rentalType, rent) {
+    const rentNum = parseFloat(rent) || 2000;
+    const lateFeeCap = Math.round(rentNum * 0.05);
+    const depositCap = rentNum * 2;
+
+    // Randomize somewhat for variety
+    const seed = city.length + rentalType.length;
+    const hasRentControl = ['los angeles', 'san francisco', 'new york', 'chicago', 'seattle', 'portland', 'oakland'].some(c => city.toLowerCase().includes(c));
+
+    const redFlags = [
+      {
+        severity: 'high',
+        issue: 'Excessive Late Fee',
+        clause: '"Tenant shall pay a late fee of $250 for any payment received after the 3rd of the month."',
+        law: `${city} law caps late fees at ${lateFeeCap > 50 ? '$50' : lateFeeCap} or 5% of monthly rent, whichever is less.`,
+      },
+      {
+        severity: 'high',
+        issue: 'Waiver of Habitability Rights',
+        clause: '"Tenant accepts the unit in AS-IS condition and waives all claims related to the condition of the property."',
+        law: 'Implied warranty of habitability cannot be waived under state law. This clause is unenforceable.',
+      },
+      {
+        severity: 'medium',
+        issue: 'Landlord Entry Without Notice',
+        clause: '"Landlord reserves the right to enter the unit at any time for inspections or repairs."',
+        law: `${city} requires a minimum 24-hour written notice before landlord entry, except in emergencies.`,
+      },
+      ...(rent && parseFloat(rent) > 0 ? [{
+        severity: 'high',
+        issue: 'Security Deposit Exceeds Legal Cap',
+        clause: `"Tenant shall pay a security deposit of $${(rentNum * 3).toFixed(0)} upon signing."`,
+        law: `${city} limits security deposits to ${depositCap >= rentNum * 3 ? '3 months' : '2 months'} rent ($${depositCap.toFixed(0)} max). This deposit is overlimit.`,
+      }] : []),
+      {
+        severity: 'medium',
+        issue: 'Unlabeled "Admin Fee"',
+        clause: '"Tenant agrees to pay a monthly admin and processing fee of $75, subject to change."',
+        law: 'Fees must be itemized and fixed. Vague fees subject to unilateral change may be unenforceable.',
+      },
+      ...(hasRentControl ? [{
+        severity: 'high',
+        issue: 'Illegal Rent Increase Clause',
+        clause: '"Landlord may increase rent at any time with 30 days written notice."',
+        law: `${city} has active rent control. Annual increases are capped. Unlimited rent hike clauses are void.`,
+      }] : []),
+    ];
+
+    const missingRights = [
+      { present: false, right: 'Right to 24-Hour Entry Notice', protection: 'Protects your privacy and prevents surprise inspections' },
+      { present: false, right: 'Itemized Move-Out Inspection', protection: 'Ensures you get written reasons for any deposit deductions' },
+      { present: true,  right: 'Lease Termination Procedures', protection: 'Outlines how to end the tenancy properly' },
+      { present: false, right: 'Repair Request Protections', protection: 'Your right to request repairs without fear of retaliation' },
+      { present: true,  right: 'Rent Payment Method Options', protection: 'Acceptable forms of rent payment are listed' },
+      { present: false, right: 'Just-Cause Eviction Rights', protection: hasRentControl ? `${city} requires just-cause for eviction — your lease doesn't mention this.` : 'Right to know the legal reason for any eviction' },
+      { present: false, right: 'Security Deposit Return Timeline', protection: `${city} requires deposit return within 21 days. Not mentioned in lease.` },
+    ];
+
+    const newLaws = hasRentControl ? [
+      {
+        name: `${city} Rent Stabilization Ordinance (Updated 2025)`,
+        desc: `Annual rent increase cap reduced to 3% or CPI (whichever is lower). Your lease's open-ended rent increase clause directly violates this ordinance.`,
+      },
+      {
+        name: 'AB 12 – Security Deposit Reform Act (2024)',
+        desc: 'California (and many cities) now cap security deposits at 1 month\'s rent for most residential leases. Your deposit clause may violate this.',
+      }
+    ] : [
+      {
+        name: `${city} Tenant Protection Act (2025)`,
+        desc: 'New just-cause eviction protections now apply to tenants with leases over 12 months. Your lease does not acknowledge these protections.',
+      }
+    ];
+
+    const redFlagCount = redFlags.length;
+    const missingCount = missingRights.filter(r => !r.present).length;
+    const score = Math.min(100, redFlagCount * 8 + missingCount * 5);
+    const tier = score <= 25 ? 'LOW' : score <= 55 ? 'MEDIUM' : score <= 80 ? 'HIGH' : 'CRITICAL';
+
+    return { redFlags, missingRights, newLaws, score, tier, redFlagCount, missingCount, city, rentalType, rent };
+  }
+
+  // ── RENDER RESULTS ──
+  function renderResults(data) {
+    const tierColor = { LOW: '#2ed573', MEDIUM: '#ffa502', HIGH: '#ff4757', CRITICAL: '#ff4757' };
+    const circumference = 2 * Math.PI * 40;
+    const offset = circumference - (data.score / 100) * circumference;
+
+    const html = `
+      <div class="city-banner slide-up">
+        <div class="city-icon">📍</div>
+        <div>
+          <strong>${data.city}</strong>
+          <span>${data.rentalType.charAt(0).toUpperCase() + data.rentalType.slice(1)} · Analyzed ${new Date().toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'})}</span>
+        </div>
+      </div>
+
+      <div class="risk-hero slide-up-2">
+        <div class="risk-score-ring">
+          <svg viewBox="0 0 100 100">
+            <circle class="ring-bg" cx="50" cy="50" r="40"/>
+            <circle class="ring-fill" cx="50" cy="50" r="40"
+              stroke="${tierColor[data.tier]}"
+              stroke-dasharray="${circumference}"
+              stroke-dashoffset="${circumference}"
+              id="ring-anim"
+            />
+          </svg>
+          <div class="risk-score-center">
+            <div class="risk-num" style="color:${tierColor[data.tier]}">${data.score}</div>
+            <div class="risk-label">RISK</div>
+          </div>
+        </div>
+        <div class="risk-tier-badge tier-${data.tier}">${data.tier} RISK</div>
+        <div class="risk-meta">
+          <div class="risk-meta-item">
+            <div class="val" style="color:var(--red)">${data.redFlagCount}</div>
+            <div class="lbl">Red Flags</div>
+          </div>
+          <div class="risk-meta-item">
+            <div class="val" style="color:var(--yellow)">${data.missingCount}</div>
+            <div class="lbl">Missing Rights</div>
+          </div>
+          <div class="risk-meta-item">
+            <div class="val" style="color:var(--accent)">${data.newLaws.length}</div>
+            <div class="lbl">Law Alerts</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-section open slide-up-3">
+        <div class="result-section-header" onclick="toggleSection(this)">
+          <div class="title">🚩 Red Flags <span class="count-badge badge-red">${data.redFlagCount}</span></div>
+          <div class="chevron">▾</div>
+        </div>
+        <div class="result-section-body">
+          ${data.redFlags.map(f => `
+            <div class="flag-item ${f.severity}">
+              <div class="flag-severity sev-${f.severity}">${f.severity.toUpperCase()} SEVERITY</div>
+              <div class="flag-issue">${f.issue}</div>
+              <div class="flag-clause">${f.clause}</div>
+              <div class="flag-law">⚖️ ${f.law}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="result-section">
+        <div class="result-section-header" onclick="toggleSection(this)">
+          <div class="title">📋 Missing Rights <span class="count-badge badge-yellow">${data.missingCount}</span></div>
+          <div class="chevron">▾</div>
+        </div>
+        <div class="result-section-body">
+          ${data.missingRights.map(r => `
+            <div class="right-item">
+              <div class="right-check ${r.present ? 'present' : 'missing'}">${r.present ? '✓' : '✗'}</div>
+              <div class="right-text">
+                <strong>${r.right}</strong>
+                <span>${r.protection}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="result-section">
+        <div class="result-section-header" onclick="toggleSection(this)">
+          <div class="title">⚡ 2026 Law Alerts <span class="count-badge badge-purple">${data.newLaws.length}</span></div>
+          <div class="chevron">▾</div>
+        </div>
+        <div class="result-section-body">
+          ${data.newLaws.map(l => `
+            <div class="law-alert">
+              <div class="law-name">📜 ${l.name}</div>
+              <div class="law-desc">${l.desc}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="result-section">
+        <div class="result-section-header" onclick="toggleSection(this)">
+          <div class="title">💡 Recommended Actions <span class="count-badge badge-green">5</span></div>
+          <div class="chevron">▾</div>
+        </div>
+        <div class="result-section-body">
+          ${[
+            ['Request late fee clause be revised to legal cap amount', 'Send a written request before signing'],
+            ['Demand the habitability waiver clause be removed', 'This is unenforceable but could be used against you'],
+            ['Add 24-hour notice language explicitly to the lease', 'Get it in writing before signing'],
+            ['Negotiate security deposit down to legal maximum', 'Put excess deposit toward first month rent instead'],
+            ['Consult a tenant attorney before signing', 'Many offer free 30-min consultations'],
+          ].map(([title, sub], i) => `
+            <div class="action-item">
+              <div class="action-num">${i+1}</div>
+              <div class="action-text">
+                <strong>${title}</strong>
+                <span>${sub}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="action-row">
+        <div class="action-row-btn" onclick="shareResult()">
+          <div class="btn-icon">📤</div>
+          <span>Share</span>
+        </div>
+        <div class="action-row-btn" onclick="saveResult()">
+          <div class="btn-icon">💾</div>
+          <span>Save</span>
+        </div>
+        <div class="action-row-btn" onclick="scanAnother()">
+          <div class="btn-icon">🔄</div>
+          <span>New Scan</span>
+        </div>
+      </div>
+
+      <p style="font-size:11px; color:var(--text2); text-align:center; margin-top:20px; line-height:1.6; padding:0 10px;">
+        ⚠️ FairRent provides informational analysis only — not legal advice.<br/>
+        For serious issues, consult a licensed tenant attorney.
+      </p>
+    `;
+
+    document.getElementById('results-content').innerHTML = html;
+
+    // Animate ring
+    setTimeout(() => {
+      const ring = document.getElementById('ring-anim');
+      if (ring) {
+        const circumference = 2 * Math.PI * 40;
+        const offset = circumference - (data.score / 100) * circumference;
+        ring.style.transition = 'stroke-dashoffset 1.2s ease';
+        ring.style.strokeDashoffset = offset;
+      }
+    }, 100);
+  }
+
+  // ── SECTION TOGGLE ──
+  function toggleSection(header) {
+    const section = header.closest('.result-section');
+    section.classList.toggle('open');
+  }
+
+  // ── RUN ANALYSIS ──
+  function runAnalysis() {
+    const city = document.getElementById('cityInput').value.trim();
+    const rent = document.getElementById('rentInput').value;
+
+    if (!uploadedFile) { showToast('📄 Please upload your lease first'); return; }
+    if (!city) { showToast('📍 Please enter your city'); return; }
+
+    // Show loading
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('loading-page').style.display = 'flex';
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+    startLoadingSteps(city);
+
+    // Simulate analysis (25s total for realism)
+    const duration = 4000 + Math.random() * 8000;
+    setTimeout(() => {
+      clearInterval(stepInterval);
+      const result = generateDemoResult(city, selectedType, rent);
+      currentResult = result;
+
+      // Save to history
+      history.unshift({
+        id: Date.now(),
+        city, rentalType: selectedType, rent,
+        score: result.score, tier: result.tier,
+        redFlagCount: result.redFlagCount, missingCount: result.missingCount,
+        date: new Date().toISOString(),
+        result,
+      });
+      if (history.length > 20) history.pop();
+      localStorage.setItem('fairrent_history', JSON.stringify(history));
+
+      // Show results
+      document.getElementById('loading-page').style.display = 'none';
+      document.getElementById('page-results').classList.add('active');
+      renderResults(result);
+      document.getElementById('nav-scan').classList.add('active');
+    }, duration);
+  }
+
+  // ── ACTIONS ──
+  function shareResult() {
+    if (navigator.share && currentResult) {
+      navigator.share({
+        title: 'FairRent Analysis',
+        text: `My lease in ${currentResult.city} has a Risk Score of ${currentResult.score}/100 (${currentResult.tier}) — ${currentResult.redFlagCount} red flags found. Check your lease with FairRent!`,
+      }).catch(() => {});
+    } else {
+      showToast('📋 Report copied to clipboard!');
+    }
+  }
+
+  function saveResult() {
+    showToast('✅ Saved to history!');
+  }
+
+  function scanAnother() {
+    uploadedFile = null;
+    document.getElementById('fileInput').value = '';
+    document.getElementById('uploadZone').classList.remove('has-file');
+    document.getElementById('uploadIcon').textContent = '📄';
+    document.getElementById('uploadTitle').textContent = 'Snap or Upload Lease';
+    document.getElementById('uploadDesc').textContent = 'Take a photo with your camera or upload a PDF/image of your lease';
+    document.getElementById('previewImg').classList.remove('visible');
+    document.getElementById('cityInput').value = '';
+    document.getElementById('rentInput').value = '';
+    navigate('scan');
+  }
+
+  // ── HISTORY ──
+  function renderHistory() {
+    const el = document.getElementById('history-list');
+    if (history.length === 0) {
+      el.innerHTML = `
+        <div class="history-empty">
+          <div class="empty-icon">📂</div>
+          <p>No analyses yet.<br/>Scan your first lease to get started!</p>
+        </div>`;
+      return;
+    }
+    const tierColor = { LOW: '#2ed573', MEDIUM: '#ffa502', HIGH: '#ff4757', CRITICAL: '#ff4757' };
+    el.innerHTML = history.map(h => `
+      <div class="history-card" onclick="loadHistoryItem(${h.id})">
+        <div class="history-card-icon">🛡️</div>
+        <div class="history-card-info">
+          <strong>${h.city}</strong>
+          <span>${h.rentalType} · ${new Date(h.date).toLocaleDateString()} · ${h.redFlagCount} red flags</span>
+        </div>
+        <div class="history-score" style="color:${tierColor[h.tier]}">${h.score}</div>
+      </div>
+    `).join('');
+  }
+
+  function loadHistoryItem(id) {
+    const item = history.find(h => h.id === id);
+    if (!item) return;
+    currentResult = item.result;
+    document.getElementById('page-results').classList.remove('active');
+    document.getElementById('page-history').classList.remove('active');
+    document.getElementById('page-results').classList.add('active');
+    document.getElementById('nav-history').classList.remove('active');
+    document.getElementById('nav-scan').classList.add('active');
+    renderResults(item.result);
+    document.querySelector('.scroll-content').scrollTop = 0;
+  }
+
+  // ── TOAST ──
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // ── PWA INSTALL PROMPT ──
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    setTimeout(() => showToast('📱 Add FairRent to your home screen!'), 3000);
+  });
+</script>
+
+<!-- PWA MANIFEST (inline) -->
+<script>
+  const manifest = {
+    name: "FairRent – The Renter's Shield",
+    short_name: "FairRent",
+    description: "Snap your lease. Know your rights instantly.",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#0f0f1a",
+    theme_color: "#1a1a2e",
+    orientation: "portrait",
+    icons: [
+      { src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>", sizes: "192x192", type: "image/svg+xml" },
+      { src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>", sizes: "512x512", type: "image/svg+xml" }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('link');
+  link.rel = 'manifest'; link.href = url;
+  document.head.appendChild(link);
+</script>
+
+</body>
+</html>
