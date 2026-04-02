@@ -13,6 +13,18 @@
   "categories": ["finance", "productivity", "utilities"],
   "dir": "ltr",
   "lang": "en-US",
+  "iarc_rating_id": "INSERT-YOUR-IARC-CODE-HERE",
+  "prefer_related_applications": true,
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=io.github.chougug_code.twa",
+      "id": "io.github.chougug_code.twa"
+    }
+  ],
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
   "icons": [
     {
       "src": "launchericon-192x192.png",
