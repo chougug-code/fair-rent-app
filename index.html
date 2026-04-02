@@ -1178,18 +1178,56 @@
     setTimeout(() => t.classList.remove('show'), 2800);
   }
 
-  // ── PWA INSTALL PROMPT ──
+  // — PWA INSTALL PROMPT —
   let deferredPrompt;
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
     setTimeout(() => showToast('📱 Add FairRent to your home screen!'), 3000);
   });
-</script>
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/fair-rent-app/sw.js');
+
+  // — ENTERPRISE PWA REGISTRATION & SYNC CAPABILITIES —
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', async () => {
+      try {
+        const registration = await navigator.serviceWorker.register('/fair-rent-app/sw.js');
+        
+        // 1. Register Background Sync
+        if ('sync' in registration) {
+          try {
+            await registration.sync.register('sync-lease-data');
+          } catch (err) {
+            console.log('[FairRent] Background sync unavailable.');
+          }
+        }
+
+        // 2. Register Periodic Background Sync
+        if ('periodicSync' in registration) {
+          try {
+            const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
+            if (status.state === 'granted') {
+              await registration.periodicSync.register('update-market-data', {
+                minInterval: 24 * 60 * 60 * 1000 // 24 hours
+              });
+            }
+          } catch (err) {
+            console.log('[FairRent] Periodic sync unavailable.');
+          }
+        }
+      } catch (error) {
+        console.error('[FairRent] ServiceWorker installation failed:', error);
+      }
     });
   }
-</script>
+
+  // — NATIVE APP ROUTING OVERRIDES —
+  window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('action') === 'scan') {
+      const scanBtn = document.getElementById('nav-scan');
+      if (scanBtn) scanBtn.click();
+    }
+  });
+  </script>
 </body>
 </html>
