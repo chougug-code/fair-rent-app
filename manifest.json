@@ -1,22 +1,78 @@
 {
-  "name": "FairRent – The Renter's Shield",
+  "id": "/",
+  "name": "FairRent - Smart Lease Scanner & Calculator",
   "short_name": "FairRent",
-  "description": "Snap your lease. Know your rights instantly.",
-  "start_url": "/",
+  "description": "Analyze your lease, calculate fair rental prices, and protect your housing budget instantly.",
+  "start_url": "/fair-rent-app/index.html",
+  "scope": "/fair-rent-app/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "minimal-ui", "tabbed"],
   "background_color": "#0f0f1a",
   "theme_color": "#1a1a2e",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
+  "categories": ["finance", "productivity", "utilities"],
+  "dir": "ltr",
+  "lang": "en-US",
   "icons": [
     {
       "src": "launchericon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "launchericon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Scan a Lease",
+      "short_name": "Scan",
+      "description": "Quickly scan a new rental agreement",
+      "url": "/fair-rent-app/index.html?action=scan",
+      "icons": [{"src": "launchericon-192x192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "Rent Calculator",
+      "short_name": "Calculate",
+      "description": "Calculate fair market rent",
+      "url": "/fair-rent-app/index.html?action=calculate",
+      "icons": [{"src": "launchericon-192x192.png", "sizes": "192x192"}]
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/fair-rent-app/index.html",
+      "accept": {
+        "application/pdf": [".pdf"],
+        "image/jpeg": [".jpg", ".jpeg"],
+        "image/png": [".png"]
+      }
+    }
+  ],
+  "share_target": {
+    "action": "/fair-rent-app/index.html",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+fairrent",
+      "url": "/fair-rent-app/index.html?link=%s"
+    }
+  ],
+  "note_taking": {
+    "new_note_url": "/fair-rent-app/index.html?action=new-note"
+  }
 }
